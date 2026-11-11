@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BCCT-LRMS · Learner Registration</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--tx:#1a2233;--mu:#5d6b82;--pr:#0b4fa8;--bd:#d5dce8;--er:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#10151f;--card:#1a2130;--tx:#e8edf6;--mu:#9aa7bd;--pr:#5b9bf0;--bd:#2d3850;--er:#ff7b6b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Arial,sans-serif}
+header{background:var(--pr);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0}header small{opacity:.85;display:block;font-weight:400}
+nav button,.btn{background:var(--pr);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:14px}
+header nav button{background:rgba(255,255,255,.18);margin-left:6px}header nav button.on{background:#fff;color:#0b4fa8}
+.btn.sec{background:transparent;color:var(--pr);border:1px solid var(--pr)}.btn.dg{background:var(--er)}
+main{max-width:980px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.card h3{margin:0 0 4px;font-size:16px}.tag{display:inline-block;background:var(--bg);border:1px solid var(--bd);border-radius:20px;padding:1px 10px;font-size:12px;margin:2px 4px 8px 0;color:var(--mu)}
+fieldset{border:1px solid var(--bd);border-radius:10px;margin:0 0 14px;padding:12px 14px;background:var(--card)}
+legend{font-weight:600;padding:0 6px;color:var(--pr)}
+label{display:block;font-size:13px;color:var(--mu);margin:6px 0 2px}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=password],select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);font-size:14px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.opts label{display:inline-flex;align-items:center;gap:6px;color:var(--tx);margin:3px 14px 3px 0;font-size:14px}
+.opts.col label{display:flex}
+.err{color:var(--er);font-size:13px;min-height:1em}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px;border-bottom:1px solid var(--bd);vertical-align:top}
+.tbl{overflow-x:auto}.hide{display:none}
+#cam{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}#ph{width:120px;height:160px;border:1px dashed var(--bd);display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:12px;text-align:center;overflow:hidden}#ph img,video{width:100%;height:100%;object-fit:cover}
+</style></head><body>
+<header><h1>BCCT-LRMS<small>Learner Registration · TESDA MIS 03-01</small></h1>
+<nav><button id="nD" class="on">Dashboard</button><button id="nA">Admin</button></nav></header>
+<main>
+<section id="vD"><h2>Available Qualifications</h2><p style="color:var(--mu)">Select a qualification, fill in the form, then print the generated PDF and submit it to the institute office.</p><div id="qs" class="grid"></div></section>
+
+<section id="vF" class="hide"><button class="btn sec" onclick="show('D')">← Back</button>
+<h2 id="fT"></h2>
+<form id="f" onsubmit="return false" novalidate>
+<fieldset><legend>I.D. Picture</legend><div id="cam"><div id="ph">No photo</div><div>
+<button type="button" class="btn" id="bCam">Use camera</button> <button type="button" class="btn hide" id="bSnap">Capture</button>
+<label>or upload a photo (taken within last 6 months)</label><input type="file" id="fu" accept="image/*"><div class="err" id="e_photo"></div></div></div></fieldset>
+
+<fieldset><legend>2. Learner / Manpower Profile</legend>
+<div class="row"><div><label>Last Name *</label><input type="text" id="ln"></div><div><label>Extension (Jr., Sr.)</label><input type="text" id="ex"></div><div><label>First Name *</label><input type="text" id="fn"></div><div><label>Middle Name</label><input type="text" id="mn"></div></div>
+<div class="row"><div><label>Number, Street *</label><input type="text" id="st"></div><div><label>Barangay *</label><input type="text" id="br"></div><div><label>District</label><input type="text" id="di"></div><div><label>City/Municipality *</label><input type="text" id="ct"></div><div><label>Province *</label><input type="text" id="pv"></div><div><label>Region *</label><select id="rg"></select></div></div>
+<div class="row"><div><label>Email Address *</label><input type="email" id="em"></div><div><label>Contact No. *</label><input type="tel" id="cn" inputmode="numeric" maxlength="11"></div><div><label>Nationality *</label><input type="text" id="na" value="Filipino"></div></div><div class="err" id="e_p"></div></fieldset>
+
+<fieldset><legend>3. Personal Information</legend>
+<label>3.1 Sex *</label><div class="opts" id="sx"></div>
+<label>3.2 Civil Status *</label><div class="opts" id="cv"></div>
+<label>3.3 Employment (before the training) *</label><div class="opts" id="es"></div>
+<div id="etw" class="hide"><label>Employment Type</label><div class="opts" id="et"></div></div>
+<div class="row"><div><label>3.4 Birthdate *</label><input type="date" id="bd"></div><div><label>Age</label><input type="text" id="ag" readonly></div></div>
+<div class="row"><div><label>3.5 Birthplace – City/Municipality *</label><input type="text" id="bc"></div><div><label>Province *</label><input type="text" id="bp"></div><div><label>Region *</label><select id="br2"></select></div></div>
+<label>3.6 Educational Attainment *</label><div class="opts col" id="ed"></div>
+<div class="row"><div><label>3.7 Parent/Guardian Name</label><input type="text" id="gn"></div><div><label>Complete Permanent Mailing Address</label><input type="text" id="ga"></div></div><div class="err" id="e_i"></div></fieldset>
+
+<fieldset><legend>4. Learner Classification *</legend><div class="opts" id="cl"></div><label>Others (specify)</label><input type="text" id="clo"><div class="err" id="e_c"></div></fieldset>
+<fieldset><legend>7–8. Qualification &amp; Scholarship</legend><div class="row"><div><label>Name of Course/Qualification</label><select id="qq"></select></div><div><label>Scholarship Package</label><input type="text" id="sc" readonly></div></div></fieldset>
+<fieldset><legend>9. Privacy Consent and Disclaimer *</legend><p style="font-size:13px">I hereby attest that I have read and understood the Privacy Notice of TESDA and thereby give my consent in the processing of my personal information indicated in this Learners Profile. The processing includes scholarships, employment, survey, and all other related TESDA programs that may be beneficial to my qualifications.</p><div class="opts" id="pc"></div><div class="err" id="e_v"></div></fieldset>
+<button class="btn" id="sub">Submit &amp; Generate PDF</button> <span class="err" id="e_all"></span>
+</form></section>
+
+<section id="vL" class="hide"><h2>Admin Login</h2><div class="card" style="max-width:340px"><label>Email</label><input type="email" id="le"><label>Password</label><input type="password" id="pw"><div class="err" id="e_l"></div><br><button class="btn" id="bL">Login</button></div></section>
+
+<section id="vA" class="hide"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><h2 style="margin-right:auto">Admin</h2><button class="btn sec" id="tq">Qualifications</button><button class="btn sec" id="tr">Registered Users</button><button class="btn dg" id="bO">Logout</button></div>
+<div id="aQ"><div class="card"><div class="row"><div><label>Qualification (e.g. Driving NC II)</label><input type="text" id="qn"></div><div><label>Batch</label><input type="text" id="qb" placeholder="Batch 1"></div><div><label>Scholarship</label><select id="qs2"></select></div></div><br><button class="btn" id="bAdd">Add</button></div><br><div class="card tbl"><table id="tQ"></table></div></div>
+<div id="aR" class="hide"><div class="card tbl"><table id="tR"></table></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const SCH=["TWSP","PESFA","STEP","UAQTEA","TTSP","Regular","Others","Tsuper Iskolar","RTES","CFSP","CDW","LEAP"];
+const REG=["NCR","CAR","Region I","Region II","Region III","Region IV-A","MIMAROPA","Region V","Region VI","Region VII","Region VIII","Region IX","Region X","Region XI","Region XII","Region XIII","BARMM"];
+const SEX=["Male","Female"],CIV=["Single","Married","Separated/Divorced/Annulled","Widow/er","Common Law/Live-in"],ES=["Wage-Employed","Underemployed","Self-Employed","Unemployed"],ET=["Regular","Casual","Probationary","Contractual","Job Order","Permanent","Temporary"];
+const ED=["No Grade Completed","Elementary Undergraduate","Elementary Graduate","High School Undergraduate","High School Graduate","Junior High (K-12)","Senior High (K-12)","Post-Secondary Non-Tertiary/Technical Vocational Course Undergraduate","Post-Secondary Non-Tertiary/Technical Vocational Course Graduate","College Undergraduate","College Graduate","Masteral","Doctorate"];
+const CL=["4Ps Beneficiary","Agrarian Reform Beneficiary","Balik Probinsya","Displaced Workers","Drug Dependents Surrenderees/Surrenderers","Family Members of AFP and PNP Killed-in-Action","Family Members of AFP and PNP Wounded-in-Action","Farmers and Fishermen","Indigenous People & Cultural Communities","Industry Workers","Inmates and Detainees","MILF Beneficiary","Out-of-School-Youth","Overseas Filipino Workers (OFW) Dependent","RCEF-RESP","Rebel Returnees/Decommissioned Combatants","Returning/Repatriated Overseas Filipino Workers (OFW)","Student","TESDA Alumni","TVET Trainers","Uniformed Personnel","Victim of Natural Disasters and Calamities","Wounded-in-Action AFP & PNP Personnel"];
+const DIS=["Mental/Intellectual","Visual Disability","Orthopedic (Musculoskeletal) Disability","Hearing Disability","Speech Impairment","Multiple Disabilities","Psychosocial Disability","Disability Due to Chronic Illness","Learning Disability"],CAU=["Congenital/Inborn","Illness","Injury"];
+// ===== FIREBASE CONFIG: paste yours from Firebase Console > Project settings > Your apps (Web) =====
+const FB={apiKey:"AIzaSyCz-Xwc69w_Ypm_JeYMduTdWhDxXqZKkhc",authDomain:"bcct-lrms.firebaseapp.com",projectId:"bcct-lrms",appId:"1:405090106607:web:5abf06695c837afad46f1a"};
+// ===================================================================================================
+const CONFIGURED=!FB.apiKey.startsWith("PASTE");
+let db,auth,Q=[],R=[],admin=false,cur=null,photo=null,stream=null,openSet=new Set(),unsubR=null;
+const fail=e=>alert("Error: "+(e&&e.message||e));
+if(CONFIGURED){firebase.initializeApp(FB);db=firebase.firestore();auth=firebase.auth();
+ db.collection("qualifications").orderBy("name").onSnapshot(sn=>{Q=sn.docs.map(d=>({id:d.id,...d.data()}));renderD();if(admin)renderA()},e=>{$("qs").innerHTML='<div class="card">Could not load qualifications: '+esc(e.message)+'</div>'});
+ auth.onAuthStateChanged(u=>{admin=!!u;if(unsubR){unsubR();unsubR=null}
+  if(u){unsubR=db.collection("registrations").orderBy("date","desc").onSnapshot(sn=>{R=sn.docs.map(d=>({id:d.id,...d.data()}));renderA()},fail);if(!$("vL").classList.contains("hide"))show("A")}
+  else{R=[];if(!$("vA").classList.contains("hide"))show("D")}})}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function radios(id,arr,name){$(id).innerHTML=arr.map(v=>`<label><input type="radio" name="${name}" value="${esc(v)}">${esc(v)}</label>`).join("")}
+radios("sx",SEX,"sx");radios("cv",CIV,"cv");radios("es",ES,"es");radios("et",ET,"et");radios("ed",ED,"ed");
+$("cl").innerHTML=CL.map(v=>`<label><input type="checkbox" name="cl" value="${esc(v)}">${esc(v)}</label>`).join("");
+$("pc").innerHTML=`<label><input type="radio" name="pc" value="Agree">Agree</label><label><input type="radio" name="pc" value="Disagree">Disagree</label>`;
+const opt=a=>'<option value="">Select…</option>'+a.map(v=>`<option>${v}</option>`).join("");
+$("rg").innerHTML=opt(REG);$("br2").innerHTML=opt(REG);$("qs2").innerHTML=SCH.map(v=>`<option>${v}</option>`).join("");
+const val=n=>(document.querySelector(`input[name=${n}]:checked`)||{}).value||"";
+function show(v){["D","F","L","A"].forEach(x=>$("v"+x).classList.toggle("hide",x!==v));$("nD").classList.toggle("on",v==="D"||v==="F");$("nA").classList.toggle("on",v==="L"||v==="A");stopCam()}
+$("nD").onclick=()=>show("D");$("nA").onclick=()=>{show(admin?"A":"L");if(admin)renderA()};
+const names=()=>{const m={};Q.forEach(q=>m[q.name+"|"+q.sch]={name:q.name,sch:q.sch});return Object.values(m)};
+function renderD(){$("qs").innerHTML=names().length?names().map((n,i)=>`<div class="card"><h3>${esc(n.name)}</h3><span class="tag">${esc(n.sch)}</span><br><button class="btn" onclick="openF(${i})">Register</button></div>`).join(""):'<div class="card">No qualifications are open yet. Please check back later.</div>'}
+function openF(i){cur=names()[i];$("f").reset();photo=null;$("ph").textContent="No photo";document.querySelectorAll(".err").forEach(e=>e.textContent="");$("etw").classList.add("hide");$("na").value="Filipino";
+$("qq").innerHTML=`<option>${esc(cur.name)}</option>`;$("sc").value=cur.sch;$("fT").textContent=cur.name+" · "+cur.sch;show("F");scrollTo(0,0)}
+$("es").onchange=()=>{const v=val("es");$("etw").classList.toggle("hide",!(v==="Wage-Employed"||v==="Underemployed"))};
+$("bd").onchange=()=>{const b=new Date($("bd").value);if(isNaN(b)){$("ag").value="";return}const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;$("ag").value=a>=0?a:""};
+["ln","ex","fn","mn"].forEach(i=>$(i).oninput=()=>{$(i).value=$(i).value.toUpperCase()});
+$("cn").oninput=()=>{$("cn").value=$("cn").value.replace(/\D/g,"")};
+function fit(src,cb){const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=400;const x=c.getContext("2d"),r=Math.max(300/i.width,400/i.height),w=i.width*r,h=i.height*r;x.drawImage(i,(300-w)/2,(400-h)/2,w,h);cb(c.toDataURL("image/jpeg",.85))};i.src=src}
+function setPh(d){photo=d;$("ph").innerHTML=`<img src="${d}" alt="">`;$("e_photo").textContent=""}
+$("fu").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>fit(r.result,setPh);r.readAsDataURL(f)};
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$("bSnap").classList.add("hide")}
+$("bCam").onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});$("ph").innerHTML="<video autoplay playsinline muted></video>";$("ph").firstChild.srcObject=stream;$("bSnap").classList.remove("hide")}catch(e){$("e_photo").textContent="Camera not available. Please upload a photo instead."}};
+$("bSnap").onclick=()=>{const v=$("ph").querySelector("video");if(!v)return;const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;c.getContext("2d").drawImage(v,0,0);fit(c.toDataURL(),d=>{setPh(d);stopCam()})};
+$("sub").onclick=async()=>{
+ const E={};const g=i=>$(i).value.trim();
+ if(!photo)E.photo="ID picture is required.";
+ if(!g("ln")||!g("fn")||!g("st")||!g("br")||!g("ct")||!g("pv")||!$("rg").value||!g("na"))E.p="Please complete name and address fields marked *.";
+ else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g("em")))E.p="Enter a valid email address.";
+ else if(!/^\d{7,11}$/.test(g("cn")))E.p="Contact number must be digits only (7–11).";
+ if(!val("sx")||!val("cv")||!val("es")||!$("bd").value||!g("bc")||!g("bp")||!$("br2").value||!val("ed"))E.i="Please complete section 3 (sex, civil status, employment, birthdate, birthplace, education).";
+ if(!document.querySelector("input[name=cl]:checked")&&!g("clo"))E.c="Select at least one classification.";
+ if(val("pc")!=="Agree")E.v="You must agree to the privacy consent to register.";
+ ["photo","p","i","c","v"].forEach(k=>$("e_"+k).textContent=E[k]||"");
+ if(Object.keys(E).length){$("e_all").textContent="Please fix the errors above.";return}$("e_all").textContent="";
+ const r={id:"r"+Date.now(),qid:"",qual:cur.name,batch:"",sch:cur.sch,date:new Date().toISOString(),uli:"",dis:[],cau:[],photo,
+  ln:g("ln"),ex:g("ex"),fn:g("fn"),mn:g("mn"),st:g("st"),br:g("br"),di:g("di"),ct:g("ct"),pv:g("pv"),rg:$("rg").value,em:g("em"),cn:g("cn"),na:g("na"),
+  sx:val("sx"),cv:val("cv"),es:val("es"),et:val("et"),bd:$("bd").value,ag:$("ag").value,bc:g("bc"),bp:g("bp"),brg:$("br2").value,ed:val("ed"),gn:g("gn"),ga:g("ga"),
+  cl:[...document.querySelectorAll("input[name=cl]:checked")].map(x=>x.value),clo:g("clo")};
+ if(!CONFIGURED)return fail("Backend not configured.");
+ $("sub").disabled=true;$("e_all").textContent="Saving…";
+ try{const ref=db.collection("registrations").doc();r.id=ref.id;await ref.set(r);makePDF(r);$("e_all").textContent="";alert("Registration saved. Print the PDF and submit it to the institute office.");show("D")}
+ catch(e){$("e_all").textContent="Could not save: "+e.message}
+ $("sub").disabled=false};
+function makePDF(r){
+ const D=new jspdf.jsPDF({unit:"mm",format:"a4"});let y;const L=10,W=190;
+ const T=(t,x,y,s=8,b=false)=>{D.setFont("helvetica",b?"bold":"normal");D.setFontSize(s);D.text(String(t),x,y)};
+ const CB=(x,y,t,on,s=7)=>{D.setLineWidth(.2);D.rect(x,y-2.6,3,3);if(on){D.setLineWidth(.4);D.line(x+.4,y-2.2,x+2.6,y+.1);D.line(x+2.6,y-2.2,x+.4,y+.1)}T(t,x+4,y,s)};
+ const R_=(x,y,w,h)=>{D.setLineWidth(.25);D.rect(x,y,w,h)};
+ const fld=(lab,v,x,y,w)=>{R_(x,y,w,10);T(lab,x+1,y+3,6);T(v||"",x+1.5,y+8,9,true)};
+ T("TECHNICAL EDUCATION AND SKILLS DEVELOPMENT AUTHORITY",L,12,10,true);T("Pangasiwaan sa Edukasyong Teknikal at Pagpapaunlad ng Kasanayan",L,16,8);
+ T("MIS 03-01 (ver. 2021)",150,12,8);T("REGISTRATION FORM",L,24,13,true);T("LEARNERS PROFILE FORM",L,29,9,true);
+ R_(165,8,35,40);if(r.photo)D.addImage(r.photo,"JPEG",165,8,35,40);else T("I.D. Picture",174,28,8);
+ fld("1.1 Unique Learner Identifier (ULI) Number",r.uli,L,33,100);fld("1.2 Entry Date (mm/dd/yy)",new Date(r.date).toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"2-digit"}),112,33,50);
+ T("2. Learner/Manpower Profile",L,50,8,true);
+ fld("2.1 Last Name",r.ln,L,52,50);fld("Extension (Jr., Sr.)",r.ex,60,52,25);fld("First Name",r.fn,85,52,60);fld("Middle Name",r.mn,145,52,45);
+ fld("2.2 Number, Street",r.st,L,62,60);fld("Barangay",r.br,70,62,45);fld("District",r.di,115,62,35);fld("City/Municipality",r.ct,150,62,40);
+ fld("Province",r.pv,L,72,60);fld("Region",r.rg,70,72,45);fld("Email Address/Facebook Account",r.em,115,72,45);fld("Contact No.",r.cn,160,72,30);
+ fld("Nationality",r.na,L,82,60);
+ T("3. Personal Information",L,98,8,true);
+ y=103;T("3.1 Sex",L,y,7,true);SEX.forEach((v,i)=>CB(L,y+5+i*5,v,r.sx===v));
+ T("3.2 Civil Status",40,y,7,true);CIV.forEach((v,i)=>CB(40,y+5+i*5,v,r.cv===v));
+ T("3.3 Employment (before the training)",100,y,7,true);ES.forEach((v,i)=>CB(100,y+5+i*5,v,r.es===v));
+ T("Employment Type",140,y,7,true);ET.forEach((v,i)=>CB(140+(i%2)*28,y+5+Math.floor(i/2)*5,v,r.et===v));
+ fld("3.4 Birthdate (mm/dd/yyyy)",r.bd?r.bd.split("-").slice(1).concat(r.bd.split("-")[0]).join("/"):"",L,130,60);fld("Age",r.ag,70,130,20);fld("3.5 Birthplace – City/Municipality",r.bc,95,130,45);fld("Province / Region",r.bp+" / "+r.brg,140,130,50);
+ T("3.6 Educational Attainment Before the Training (Trainee)",L,148,7,true);
+ ED.forEach((v,i)=>{const col=i%2,row=Math.floor(i/2);const lab=v.length>60?v.slice(0,57)+"...":v;CB(L+col*95,153+row*5,lab,r.ed===v,6)});
+ fld("3.7 Parent/Guardian Name",r.gn,L,189,70);fld("Complete Permanent Mailing Address",r.ga,80,189,110);
+ T("4. Learner/Trainee/Student (Clients) Classification:",L,204,8,true);
+ CL.forEach((v,i)=>{const lab=v.length>40?v.slice(0,37)+"...":v;CB(L+(i%3)*64,209+Math.floor(i/3)*4.6,lab,r.cl.includes(v),6)});
+ CB(L,209+8*4.6+1,"Others: "+(r.clo||"__________"),!!r.clo,6);
+ y=256;T("5. Type of Disability (PWD only) – to be filled by TESDA personnel",L,y,7,true);DIS.forEach((v,i)=>CB(L+(i%3)*64,y+4+Math.floor(i/3)*4,v,r.dis.includes(v),6));
+ T("6. Causes of Disability:",L,y+17,7,true);CAU.forEach((v,i)=>CB(48+i*38,y+17,v,r.cau.includes(v),6));
+ fld("7. Name of Course/Qualification",r.qual,L,277,110);fld("8. Scholarship Package",r.sch,120,277,70);
+ D.addPage();
+ T("9. Privacy Consent and Disclaimer",L,15,9,true);
+ D.setFont("helvetica","normal");D.setFontSize(8);D.text(D.splitTextToSize("I hereby attest that I have read and understood the Privacy Notice of TESDA through its website and thereby giving my consent in the processing of my personal information indicated in this Learners Profile. The processing includes scholarships, employment, survey, and all other related TESDA programs that may be beneficial to my qualifications.",W),L,20);
+ CB(L,36,"Agree",true,8);CB(40,36,"Disagree",false,8);
+ T("10. Applicant's Signature",L,48,9,true);T("This is to certify that the information stated above is true and correct.",L,53,8);
+ R_(160,56,30,30);T("1x1 picture taken",161,70,6);T("within the last 6 months",161,73,6);
+ const nm=[r.fn,r.mn,r.ln,r.ex].filter(Boolean).join(" ");
+ D.line(L,95,90,95);T(nm,L+2,93,9,true);T("APPLICANT'S SIGNATURE OVER PRINTED NAME",L,99,6);
+ D.line(100,95,150,95);T(new Date(r.date).toLocaleDateString("en-US"),105,93,9,true);T("DATE ACCOMPLISHED",100,99,6);
+ T("Noted by:",L,115,8);D.line(L,130,90,130);T("REGISTRAR/SCHOOL ADMINISTRATOR (Signature Over Printed Name)",L,134,6);D.line(100,130,150,130);T("DATE RECEIVED",100,134,6);
+ R_(160,100,30,20);T("Right Thumbmark",163,124,6);
+ D.save(`TESDA-DPA_Form1_${r.ln}_${r.fn}.pdf`)}
+$("bL").onclick=()=>{if(!CONFIGURED)return fail("Backend not configured.");auth.signInWithEmailAndPassword($("le").value.trim(),$("pw").value).then(()=>{$("pw").value="";$("e_l").textContent=""}).catch(()=>$("e_l").textContent="Wrong email or password.")};
+$("bO").onclick=()=>{auth&&auth.signOut()};
+function tab(t){["Q","R"].forEach(x=>$("a"+x).classList.toggle("hide",x!==t))}
+$("tq").onclick=()=>tab("Q");$("tr").onclick=()=>tab("R");
+$("bAdd").onclick=()=>{const n=$("qn").value.trim(),b=$("qb").value.trim();if(!n||!b)return alert("Enter qualification and batch.");db.collection("qualifications").add({name:n,batch:b,sch:$("qs2").value}).then(()=>{$("qn").value="";$("qb").value=""}).catch(fail)};
+function delQ(id){if(confirm("Delete this qualification/batch?"))db.collection("qualifications").doc(id).delete().catch(fail)}
+function delR(id){if(confirm("Delete this registration?"))db.collection("registrations").doc(id).delete().catch(fail)}
+function assign(id,qid){const q=Q.find(q=>q.id===qid);db.collection("registrations").doc(id).update({qid:q?q.id:"",batch:q?q.batch:""}).catch(fail)}
+function uli(id,v){db.collection("registrations").doc(id).update({uli:v.trim()}).catch(fail)}
+function tg(id,k,v,on){const r=R.find(r=>r.id===id),a=r[k]||[];db.collection("registrations").doc(id).update({[k]:on?[...new Set([...a,v])]:a.filter(x=>x!==v)}).catch(fail)}
+function more(id){openSet.has(id)?openSet.delete(id):openSet.add(id);renderA()}
+function detail(r){const d=r.dis||[],c=r.cau||[];return `<b>5. Disability</b><div class="opts">${DIS.map(v=>`<label><input type="checkbox" ${d.includes(v)?"checked":""} onchange="tg('${r.id}','dis','${v}',this.checked)">${v}</label>`).join("")}</div><b>6. Cause</b><div class="opts">${CAU.map(v=>`<label><input type="checkbox" ${c.includes(v)?"checked":""} onchange="tg('${r.id}','cau','${v}',this.checked)">${v}</label>`).join("")}</div>`}
+function renderA(){
+ $("tQ").innerHTML="<tr><th>Qualification</th><th>Batch</th><th>Scholarship</th><th>Registered</th><th></th></tr>"+(Q.map(q=>`<tr><td>${esc(q.name)}</td><td>${esc(q.batch)}</td><td>${esc(q.sch)}</td><td>${R.filter(r=>r.qual===q.name&&r.sch===q.sch&&r.batch===q.batch).length}</td><td><button class="btn dg" onclick="delQ('${q.id}')">Delete</button></td></tr>`).join("")||"<tr><td colspan=5>None yet.</td></tr>");
+ $("tR").innerHTML="<tr><th>Name</th><th>Qualification</th><th>Contact</th><th>ULI No.</th><th></th></tr>"+(R.map(r=>`<tr><td>${esc(r.ln)}, ${esc(r.fn)} ${esc(r.mn)}</td><td>${esc(r.qual)}<br><select onchange="assign('${r.id}',this.value)"><option value="">Assign batch…</option>${Q.filter(q=>q.name===r.qual&&q.sch===r.sch).map(q=>`<option value="${q.id}" ${q.id===r.qid?"selected":""}>${esc(q.batch)}</option>`).join("")}</select></td><td>${esc(r.cn)}<br><small>${esc(r.em)}</small></td><td><input type="text" value="${esc(r.uli)}" onchange="uli('${r.id}',this.value)" style="min-width:130px"></td><td><button class="btn sec" onclick="makePDF(R.find(x=>x.id==='${r.id}'))">PDF</button> <button class="btn sec" onclick="more('${r.id}')">5–6</button> <button class="btn dg" onclick="delR('${r.id}')">×</button><div>${openSet.has(r.id)?detail(r):""}</div></td></tr>`).join("")||"<tr><td colspan=5>No registrations yet.</td></tr>")}
+renderD();if(!CONFIGURED)$("qs").innerHTML='<div class="card">Setup needed: paste your Firebase config at the top of the script in index.html.</div>';$("nD").addEventListener("click",renderD);
+</script></body></html>
