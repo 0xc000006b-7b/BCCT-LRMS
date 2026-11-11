@@ -74,12 +74,12 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 const $=id=>document.getElementById(id);
 const SCH=["TWSP","PESFA","STEP","UAQTEA","TTSP","Regular","Others","Tsuper Iskolar","RTES","CFSP","CDW","LEAP"];
 const REG=["NCR","CAR","Region I","Region II","Region III","Region IV-A","MIMAROPA","Region V","Region VI","Region VII","Region VIII","Region IX","Region X","Region XI","Region XII","Region XIII","BARMM"];
-const SEX=["Male","Female"],CIV=["Single","Married","Separated/Divorced/Annulled","Widow/er","Common Law/Live-in"],ES=["Wage-Employed","Underemployed","Self-Employed","Unemployed"],ET=["Regular","Casual","Probationary","Contractual","Job Order","Permanent","Temporary"];
+const SEX=["Male","Female"],CIV=["Single","Married","Separated/Divorced/Annulled","Widow/er","Common Law/Live-in"],ES=["Wage-Employed","Underemployed","Self-Employed","Unemployed"],ET=["None","Regular","Casual","Probationary","Contractual","Job Order","Permanent","Temporary"];
 const ED=["No Grade Completed","Elementary Undergraduate","Elementary Graduate","High School Undergraduate","High School Graduate","Junior High (K-12)","Senior High (K-12)","Post-Secondary Non-Tertiary/Technical Vocational Course Undergraduate","Post-Secondary Non-Tertiary/Technical Vocational Course Graduate","College Undergraduate","College Graduate","Masteral","Doctorate"];
 const CL=["4Ps Beneficiary","Agrarian Reform Beneficiary","Balik Probinsya","Displaced Workers","Drug Dependents Surrenderees/Surrenderers","Family Members of AFP and PNP Killed-in-Action","Family Members of AFP and PNP Wounded-in-Action","Farmers and Fishermen","Indigenous People & Cultural Communities","Industry Workers","Inmates and Detainees","MILF Beneficiary","Out-of-School-Youth","Overseas Filipino Workers (OFW) Dependent","RCEF-RESP","Rebel Returnees/Decommissioned Combatants","Returning/Repatriated Overseas Filipino Workers (OFW)","Student","TESDA Alumni","TVET Trainers","Uniformed Personnel","Victim of Natural Disasters and Calamities","Wounded-in-Action AFP & PNP Personnel"];
 const DIS=["Mental/Intellectual","Visual Disability","Orthopedic (Musculoskeletal) Disability","Hearing Disability","Speech Impairment","Multiple Disabilities","Psychosocial Disability","Disability Due to Chronic Illness","Learning Disability"],CAU=["Congenital/Inborn","Illness","Injury"];
 // ===== FIREBASE CONFIG: paste yours from Firebase Console > Project settings > Your apps (Web) =====
-const FB={apiKey:"AIzaSyCz-Xwc69w_Ypm_JeYMduTdWhDxXqZKkhc",authDomain:"bcct-lrms.firebaseapp.com",projectId:"bcct-lrms",appId:"1:405090106607:web:5abf06695c837afad46f1a"};
+const FB={apiKey:"PASTE_API_KEY",authDomain:"PASTE.firebaseapp.com",projectId:"PASTE_PROJECT_ID",appId:"PASTE_APP_ID"};
 // ===================================================================================================
 const CONFIGURED=!FB.apiKey.startsWith("PASTE");
 let db,auth,Q=[],R=[],admin=false,cur=null,photo=null,stream=null,openSet=new Set(),unsubR=null;
@@ -133,50 +133,102 @@ $("sub").onclick=async()=>{
  try{const ref=db.collection("registrations").doc();r.id=ref.id;await ref.set(r);makePDF(r);$("e_all").textContent="";alert("Registration saved. Print the PDF and submit it to the institute office.");show("D")}
  catch(e){$("e_all").textContent="Could not save: "+e.message}
  $("sub").disabled=false};
+const LOGO="data:image/jpeg;base64,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";
 function makePDF(r){
- const D=new jspdf.jsPDF({unit:"mm",format:"a4"});let y;const L=10,W=190;
- const T=(t,x,y,s=8,b=false)=>{D.setFont("helvetica",b?"bold":"normal");D.setFontSize(s);D.text(String(t),x,y)};
- const CB=(x,y,t,on,s=7)=>{D.setLineWidth(.2);D.rect(x,y-2.6,3,3);if(on){D.setLineWidth(.4);D.line(x+.4,y-2.2,x+2.6,y+.1);D.line(x+2.6,y-2.2,x+.4,y+.1)}T(t,x+4,y,s)};
- const R_=(x,y,w,h)=>{D.setLineWidth(.25);D.rect(x,y,w,h)};
- const fld=(lab,v,x,y,w)=>{R_(x,y,w,10);T(lab,x+1,y+3,6);T(v||"",x+1.5,y+8,9,true)};
- T("TECHNICAL EDUCATION AND SKILLS DEVELOPMENT AUTHORITY",L,12,10,true);T("Pangasiwaan sa Edukasyong Teknikal at Pagpapaunlad ng Kasanayan",L,16,8);
- T("MIS 03-01 (ver. 2021)",150,12,8);T("REGISTRATION FORM",L,24,13,true);T("LEARNERS PROFILE FORM",L,29,9,true);
- R_(165,8,35,40);if(r.photo)D.addImage(r.photo,"JPEG",165,8,35,40);else T("I.D. Picture",174,28,8);
- fld("1.1 Unique Learner Identifier (ULI) Number",r.uli,L,33,100);fld("1.2 Entry Date (mm/dd/yy)",new Date(r.date).toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"2-digit"}),112,33,50);
- T("2. Learner/Manpower Profile",L,50,8,true);
- fld("2.1 Last Name",r.ln,L,52,50);fld("Extension (Jr., Sr.)",r.ex,60,52,25);fld("First Name",r.fn,85,52,60);fld("Middle Name",r.mn,145,52,45);
- fld("2.2 Number, Street",r.st,L,62,60);fld("Barangay",r.br,70,62,45);fld("District",r.di,115,62,35);fld("City/Municipality",r.ct,150,62,40);
- fld("Province",r.pv,L,72,60);fld("Region",r.rg,70,72,45);fld("Email Address/Facebook Account",r.em,115,72,45);fld("Contact No.",r.cn,160,72,30);
- fld("Nationality",r.na,L,82,60);
- T("3. Personal Information",L,98,8,true);
- y=103;T("3.1 Sex",L,y,7,true);SEX.forEach((v,i)=>CB(L,y+5+i*5,v,r.sx===v));
- T("3.2 Civil Status",40,y,7,true);CIV.forEach((v,i)=>CB(40,y+5+i*5,v,r.cv===v));
- T("3.3 Employment (before the training)",100,y,7,true);ES.forEach((v,i)=>CB(100,y+5+i*5,v,r.es===v));
- T("Employment Type",140,y,7,true);ET.forEach((v,i)=>CB(140+(i%2)*28,y+5+Math.floor(i/2)*5,v,r.et===v));
- fld("3.4 Birthdate (mm/dd/yyyy)",r.bd?r.bd.split("-").slice(1).concat(r.bd.split("-")[0]).join("/"):"",L,130,60);fld("Age",r.ag,70,130,20);fld("3.5 Birthplace – City/Municipality",r.bc,95,130,45);fld("Province / Region",r.bp+" / "+r.brg,140,130,50);
- T("3.6 Educational Attainment Before the Training (Trainee)",L,148,7,true);
- ED.forEach((v,i)=>{const col=i%2,row=Math.floor(i/2);const lab=v.length>60?v.slice(0,57)+"...":v;CB(L+col*95,153+row*5,lab,r.ed===v,6)});
- fld("3.7 Parent/Guardian Name",r.gn,L,189,70);fld("Complete Permanent Mailing Address",r.ga,80,189,110);
- T("4. Learner/Trainee/Student (Clients) Classification:",L,204,8,true);
- CL.forEach((v,i)=>{const lab=v.length>40?v.slice(0,37)+"...":v;CB(L+(i%3)*64,209+Math.floor(i/3)*4.6,lab,r.cl.includes(v),6)});
- CB(L,209+8*4.6+1,"Others: "+(r.clo||"__________"),!!r.clo,6);
- y=256;T("5. Type of Disability (PWD only) – to be filled by TESDA personnel",L,y,7,true);DIS.forEach((v,i)=>CB(L+(i%3)*64,y+4+Math.floor(i/3)*4,v,r.dis.includes(v),6));
- T("6. Causes of Disability:",L,y+17,7,true);CAU.forEach((v,i)=>CB(48+i*38,y+17,v,r.cau.includes(v),6));
- fld("7. Name of Course/Qualification",r.qual,L,277,110);fld("8. Scholarship Package",r.sch,120,277,70);
+ const D=new jspdf.jsPDF({unit:"mm",format:"a4"});
+ const X0=7.5,X1=202.3,WD=X1-X0;
+ const F=(f,st,z)=>{D.setFont(f,st);D.setFontSize(z)};
+ const T=(t,x,y,o={})=>{F(o.f||"helvetica",o.s||"normal",o.z||8);const op={align:o.a||"left"};if(o.cs)op.charSpace=o.cs;D.text(String(t),x,y,op)};
+ const TF=(t,x,y,w,o={})=>{let z=o.z||9;F("helvetica",o.s||"bold",z);while(z>5&&D.getTextWidth(String(t))>w){z-=.5;D.setFontSize(z)}D.text(String(t),x,y,{align:o.a||"center"})};
+ const rect=(x,y,w,h,fill)=>{D.setLineWidth(.25);D.setDrawColor(0);if(fill){D.setFillColor(217,217,217);D.rect(x,y,w,h,"FD")}else D.rect(x,y,w,h)};
+ const ln=(x1,y1,x2,y2)=>{D.setLineWidth(.25);D.setDrawColor(0);D.line(x1,y1,x2,y2)};
+ const bar=(y,h,t,it)=>{rect(X0,y,WD,h,true);const b=y+h*.7;T(t,X0+1.5,b,{s:"bold",z:10.5});if(it){const w=D.getTextWidth(t);T(it,X0+1.5+w+1.5,b,{s:"italic",z:9.5})}};
+ const cb=(x,y,on)=>{D.setLineWidth(.25);D.setDrawColor(0);D.rect(x,y,2.8,2.8);if(on){D.setLineWidth(.55);D.line(x+.5,y+1.5,x+1.2,y+2.3);D.line(x+1.2,y+2.3,x+2.4,y+.5)}};
+ const C=(x,y,t,on,z=7.5,off=5)=>{cb(x,y-2.4,on);T(t,x+off,y,{z})};
+ const box=(x,y,w,h,v,lab,o={})=>{rect(x,y,w,h);if(v)TF(v,x+w/2,y+(o.top?4.8:h/2+1.2),w-2,{z:9});if(lab)T(lab,x+w/2,y+h+2.7,{s:"bold",z:7.5,a:"center"})};
+ // ---------- PAGE 1 ----------
+ rect(X0,16.4,WD,263.8);
+ ln(X0,30,X1,30);ln(38.6,16.4,38.6,30);ln(X0,40.2,X1,40.2);
+ try{D.addImage(LOGO,"JPEG",13,17.2,20,12.6)}catch(e){}
+ T("Technical Education and Skills Development Authority",109,22.6,{f:"times",s:"bold",z:11,a:"center"});
+ T("Pangasiwaan sa Edukasyong Teknikal at Pagpapaunlad ng Kasanayan",109,27.3,{f:"times",z:9.5,a:"center"});
+ rect(181,19.6,19.5,8);T("MIS 03-01",190.7,23.1,{s:"bolditalic",z:8,a:"center"});T("(ver. 2021)",190.7,26.3,{s:"bolditalic",z:7.5,a:"center"});
+ D.setTextColor(150);T("Registration Form",105.4,37.6,{s:"bold",z:26,a:"center"});D.setTextColor(0);T("Registration Form",105,37.2,{s:"bold",z:26,a:"center"});
+ T("LEARNERS PROFILE FORM",43,53,{s:"bold",z:14,cs:1.2});
+ rect(161.4,40.9,36.4,24.6);
+ if(r.photo){try{const h=24.6,w=h*.75;D.addImage(r.photo,"JPEG",161.4+(36.4-w)/2,40.9,w,h)}catch(e){}}else T("I.D. Picture",179.6,53.5,{f:"times",z:8,a:"center"});
+ bar(67,8.2,"1. T2MIS Auto Generated");
+ ln(X0,83.4,X1,83.4);
+ T("1.1.",13.6,80.8,{z:7});T("Unique Learner",21,78.7,{s:"bold",z:9});T("Identifier (ULI) Number:",21,82.4,{s:"bold",z:9});
+ const u=(r.uli||"").replace(/[^0-9A-Za-z]/g,"").toUpperCase();
+ for(let i=0;i<10;i++){rect(59.8+i*5,76,5,6.9);if(u[i])T(u[i],62.3+i*5,81,{s:"bold",z:9,a:"center"})}
+ T("-",111.4,81,{s:"bold",z:10,a:"center"});
+ for(let i=0;i<4;i++){rect(113+i*5,76,5,6.9);if(u[10+i])T(u[10+i],115.5+i*5,81,{s:"bold",z:9,a:"center"})}
+ T("1.2.",137.6,80.8,{z:7});T("Entry Date:",143,80.8,{s:"bold",z:9});
+ const ed=new Date(r.date);rect(160,75.8,39.6,6.9);T(ed.toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"2-digit"}),179.8,80.7,{f:"times",z:10,a:"center"});
+ bar(83.6,7.8,"2. Learner/Manpower Profile");
+ T("2.1.",13.6,95.6,{z:7});T("Name:",20.4,95.6,{s:"bold",z:9.5});
+ box(39.8,91.4,65.4,6.8,r.ln+(r.ex?" "+r.ex:""),"Last Name, Extension Name (Jr., Sr.)");box(107.5,91.4,60.7,6.8,r.fn,"First");box(169.8,91.4,32.5,6.8,r.mn,"Middle");
+ T("2.2.",13.6,112.5,{z:7});["Complete","Permanent","Mailing"].forEach((t,i)=>T(t,20.4,108+i*4,{s:"bold",z:9.5}));T("Address:",13.8,121.6,{s:"bold",z:9.5});
+ box(39.8,102.3,65.4,17.7,r.st,"Number, Street",{top:1});box(107.5,102.3,60.7,17.7,r.br,"Barangay",{top:1});box(169.8,102.3,32.5,17.7,r.di,"District",{top:1});
+ box(39.8,124.1,65.4,7.3,r.ct,"City/Municipality");box(107.5,124.1,60.7,7.3,r.pv,"Province");box(169.8,124.1,32.5,7.3,r.rg,"Region");
+ box(39.8,135,65.4,6.4,r.em);box(107.5,135,60.7,6.4,r.cn);box(169.8,135,32.5,6.4,r.na);
+ T("Email Address/Facebook Account:",40.4,144,{s:"bold",z:7.5});T("Contact No:",137.8,144,{s:"bold",z:7.5,a:"center"});T("Nationality",186,144,{s:"bold",z:7.5,a:"center"});
+ bar(145.7,7.7,"3. Personal Information");
+ rect(X0,153.4,WD,39.3);ln(42.7,153.4,42.7,192.7);ln(93.2,153.4,93.2,192.7);ln(X0,160,X1,160);
+ T("3.1.",11.4,158.3,{z:7});T("Sex",15.8,158.3,{s:"bold",z:9.5});T("3.2.",45.5,158.3,{z:7});T("Civil Status",49.8,158.3,{s:"bold",z:9.5});T("3.3",96.5,158.3,{z:7});T("Employment (before the training)",101.5,158.3,{s:"bold",z:9.5});
+ SEX.forEach((v,i)=>C(11.8,167.6+i*4.1,v,r.sx===v,8,8.6));
+ CIV.forEach((v,i)=>C(45.5,167.6+i*4.1,v,r.cv===v,8,6.1));
+ T("Employment Status",94.6,165,{z:8});
+ [["Wage-Employed",171.3],["Underemployed",175.4],["Self-Employed",187.6],["Unemployed",191.7]].forEach(([v,y])=>C(94.6,y,v,r.es===v,8));
+ T("Employment Type",140,164.6,{z:8});T("(if Wage-employed or Underemployed)",140,167.5,{s:"italic",z:6.5});
+ [["None",140,171.3],["Casual",140,175.4],["Probationary",140,179.5],["Contractual",140,183.6],["Regular",165.2,171.3],["Job Order",165.2,175.4],["Permanent",165.2,179.5],["Temporary",165.2,183.6]].forEach(([v,x,y])=>C(x,y,v,r.et===v,8));
+ rect(X0,192.7,WD,13.7);T("3.4",11.4,197.7,{z:7});T("Birthdate",15.8,197.7,{s:"bold",z:9.5});
+ const MO=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"],b=(r.bd||"").split("-");
+ box(35.2,193.9,42.8,7.3,b[1]?MO[+b[1]-1]:"","Month of Birth");box(83,193.9,39.3,7.3,b[2]?String(+b[2]):"","Day of Birth");box(125.7,193.9,37.5,7.3,b[0]||"","Year of Birth");box(168.4,193.9,33.9,7.3,r.ag,"Age");
+ rect(X0,206.4,WD,14.1);T("3.5",11.4,212.3,{z:7});T("Birthplace",15.5,212.3,{s:"bold",z:9.5});
+ box(35.2,209.3,64.8,7.3,r.bc,"City/Municipality");box(103.4,209.3,56.6,7.3,r.bp,"Province");box(163.2,209.3,39.1,7.3,r.brg,"Region");
+ rect(X0,220.5,WD,6.8);T("3.6",11.4,225,{z:7});T("Educational Attainment Before the Training (Trainee)",15.8,225,{s:"bold",z:9.5});
+ rect(X0,227.3,WD,34.5);
+ const EP=[[9.5,232.8],[9.5,240],[9.5,245],[9.5,252],[9.5,259],[62.5,232.8],[62.5,240],[62.5,245,"Post-Secondary Non-Tertiary/ Technical Vocational","Course Undergraduate"],[62.5,252,"Post-Secondary Non-Tertiary/ Technical Vocational","Course Graduate"],[140,232.8],[140,240],[140,245],[140,252]];
+ ED.forEach((v,i)=>{const p=EP[i];C(p[0],p[1],p[2]||v,r.ed===v,7.5,4.8);if(p[3])T(p[3],p[0]+4.8,p[1]+3.2,{z:7.5})});
+ rect(X0,261.8,WD,18.4);T("3.7",11.4,267.8,{z:7});T("Parent/Guardian",15.5,267.8,{s:"bold",z:9.5});
+ box(43.2,265.4,65.2,10.4,r.gn,"Name");box(108.4,265.4,92.6,10.4,r.ga,"Complete Permanent Mailing Address");
+ // ---------- PAGE 2 ----------
  D.addPage();
- T("9. Privacy Consent and Disclaimer",L,15,9,true);
- D.setFont("helvetica","normal");D.setFontSize(8);D.text(D.splitTextToSize("I hereby attest that I have read and understood the Privacy Notice of TESDA through its website and thereby giving my consent in the processing of my personal information indicated in this Learners Profile. The processing includes scholarships, employment, survey, and all other related TESDA programs that may be beneficial to my qualifications.",W),L,20);
- CB(L,36,"Agree",true,8);CB(40,36,"Disagree",false,8);
- T("10. Applicant's Signature",L,48,9,true);T("This is to certify that the information stated above is true and correct.",L,53,8);
- R_(160,56,30,30);T("1x1 picture taken",161,70,6);T("within the last 6 months",161,73,6);
+ rect(X0,20.5,WD,230.5);
+ bar(20.5,6.3,"4. Learner/Trainee/Student (Clients) Classification:");
+ const RY=[26.8,31.8,40,47.7,52.7,60,67.7,73.2,81.8],CX=[X0,69.3,134.6,X1];
+ for(let i=1;i<RY.length-1;i++)ln(X0,RY[i],X1,RY[i]);ln(X0,RY[RY.length-1],X1,RY[RY.length-1]);
+ for(let y=0;y<8;y++){ln(CX[1],RY[y],CX[1],RY[y+1]);ln(CX[2],RY[y],CX[2],RY[y+1])}
+ CL.concat(["Others:"]).forEach((v,i)=>{const row=Math.floor(i/3),col=i%3,x=CX[col],t=RY[row],h=RY[row+1]-t;
+  const on=i<CL.length?r.cl.includes(v):!!r.clo;F("helvetica","normal",7.5);
+  const lines=i<CL.length?D.splitTextToSize(v,CX[col+1]-x-8.5):["Others:"];
+  const y0=t+(h-(lines.length-1)*3.2)/2+1;cb(x+2.2,y0-2.4,on);lines.forEach((l,k)=>T(l,x+7,y0+k*3.2,{z:7.5}));
+  if(i===CL.length){ln(x+17,y0+.5,x+57,y0+.5);if(r.clo)TF(r.clo,x+37,y0-.3,38,{z:8});T("(Please Specify)",x+37,y0+3.3,{z:6.5,a:"center"})}});
+ bar(81.8,7.5,"5. Type of Disability (for Persons with Disability Only):","To be filled up by the TESDA personnel");
+ rect(X0,89.3,WD,15.5);
+ const DX=[15.9,72.3,144.3],DY=[94.4,98.8,103.8];
+ DIS.forEach((v,i)=>C(DX[i%3],DY[Math.floor(i/3)],v==="Multiple Disabilities"?"Multiple Disabilities, specify":v,(r.dis||[]).includes(v),7.5,5.7));
+ bar(104.8,7.7,"6. Causes of Disability (for Persons with Disability Only):","To be filled up by the TESDA personnel");
+ rect(X0,112.5,WD,5.8);CAU.forEach((v,i)=>C(DX[i],115.9,v,(r.cau||[]).includes(v),7.5,5.7));
+ bar(118.3,6.8,"7. Name of Course/Qualification");rect(X0,125.1,WD,7.3);TF(r.qual,X0+2,130.2,WD-4,{z:10,a:"left"});
+ bar(132.4,6.2,"8. If Scholar, What Type of Scholarship Package (TWSP, PESFA, STEP, others)?");rect(X0,138.6,WD,7.2);TF(r.sch||"",X0+2,143.7,WD-4,{z:10,a:"left"});
+ bar(145.8,7,"9. Privacy Consent and Disclaimer");
+ ["I hereby attest that I have read and understood the Privacy Notice of TESDA through its website (https://www.tesda.gov.ph)","and thereby giving my consent in the processing of my personal information indicated in this Learners Profile. The","processing includes scholarships, employment, survey, and all other related TESDA programs that may be beneficial to my","qualifications."].forEach((t,i)=>T(t,9.5,157.2+i*4,{s:"bolditalic",z:7.8}));
+ C(70.2,173.6,"Agree",true,9);C(113,173.6,"Disagree",false,9);
+ bar(176,7.4,"10. Applicant's Signature");
+ rect(X0,183.4,WD,67.6);
+ T("This is to certify that the information stated above is true and correct.",105,189,{s:"italic",z:7.5,a:"center"});
  const nm=[r.fn,r.mn,r.ln,r.ex].filter(Boolean).join(" ");
- D.line(L,95,90,95);T(nm,L+2,93,9,true);T("APPLICANT'S SIGNATURE OVER PRINTED NAME",L,99,6);
- D.line(100,95,150,95);T(new Date(r.date).toLocaleDateString("en-US"),105,93,9,true);T("DATE ACCOMPLISHED",100,99,6);
- T("Noted by:",L,115,8);D.line(L,130,90,130);T("REGISTRAR/SCHOOL ADMINISTRATOR (Signature Over Printed Name)",L,134,6);D.line(100,130,150,130);T("DATE RECEIVED",100,134,6);
- R_(160,100,30,20);T("Right Thumbmark",163,124,6);
+ ln(14.8,208.2,82.3,208.2);TF(nm,48.5,206.6,66,{z:9});T("APPLICANT'S SIGNATURE OVER PRINTED NAME",14.8,211.4,{s:"bold",z:7.5});
+ ln(90.5,208.2,123.4,208.2);TF(ed.toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"}),107,206.6,31,{z:9});T("DATE ACCOMPLISHED",90.5,211.4,{s:"bold",z:7.5});
+ rect(143.7,193.7,34.3,26.8);["1x1 picture taken","within the last 6","months"].forEach((t,i)=>T(t,160.9,203.6+i*4.6,{f:"times",z:9,a:"center"}));
+ T("Noted by:",14.1,230.8,{s:"bold",z:8.5});
+ ln(14.8,237.3,82.3,237.3);T("REGISTRAR/SCHOOL ADMINISTRATOR",48.5,240.4,{s:"bold",z:7.5,a:"center"});T("(Signature Over Printed Name)",48.5,243.8,{s:"bold",z:7.5,a:"center"});
+ ln(90.5,237.3,123.4,237.3);T("DATE RECEIVED",90.5,240.4,{s:"bold",z:7.5});
+ rect(143.7,222.3,34.3,23.6);T("Right Thumbmark",160.9,249.4,{s:"bold",z:8.5,a:"center"});
  D.save(`TESDA-DPA_Form1_${r.ln}_${r.fn}.pdf`)}
-$("bL").onclick=()=>{if(!CONFIGURED)return fail("Backend not configured.");auth.signInWithEmailAndPassword($("le").value.trim(),$("pw").value).then(()=>{$("pw").value="";$("e_l").textContent=""}).catch(()=>$("e_l").textContent="Wrong email or password.")};
-$("bO").onclick=()=>{auth&&auth.signOut()};
 function tab(t){["Q","R"].forEach(x=>$("a"+x).classList.toggle("hide",x!==t))}
 $("tq").onclick=()=>tab("Q");$("tr").onclick=()=>tab("R");
 $("bAdd").onclick=()=>{const n=$("qn").value.trim(),b=$("qb").value.trim();if(!n||!b)return alert("Enter qualification and batch.");db.collection("qualifications").add({name:n,batch:b,sch:$("qs2").value}).then(()=>{$("qn").value="";$("qb").value=""}).catch(fail)};
