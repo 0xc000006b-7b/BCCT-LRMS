@@ -180,7 +180,7 @@ function makePDF(r){
  bar(67,8.2,"1. T2MIS Auto Generated");
  ln(X0,83.4,X1,83.4);
  T("1.1.",13.6,80.8,{z:7});T("Unique Learner",21,78.7,{s:"bold",z:9});T("Identifier (ULI) Number:",21,82.4,{s:"bold",z:9});
- const u=(r.uli||"").replace(/[^0-9A-Za-z]/g,"").toUpperCase();
+ const u=(r.uli||"").replace(/\D/g,"").slice(0,13);
  for(let i=0;i<10;i++){rect(59.8+i*5.4,76,5.4,6.9);if(u[i])T(u[i],62.5+i*5.4,81,{s:"bold",z:9,a:"center"})}
  T("-",115.4,81,{s:"bold",z:10,a:"center"});
  for(let i=0;i<3;i++){rect(117+i*5.4,76,5.4,6.9);if(u[10+i])T(u[10+i],119.7+i*5.4,81,{s:"bold",z:9,a:"center"})}
@@ -257,7 +257,7 @@ $("bAdd").onclick=()=>{const n=$("qn").value.trim(),b=$("qb").value.trim();if(!n
 function delQ(id){if(confirm("Delete this qualification/batch?"))db.collection("qualifications").doc(id).delete().catch(fail)}
 function delR(id){if(confirm("Delete this registration?"))db.collection("registrations").doc(id).delete().catch(fail)}
 function assign(id,qid){const q=Q.find(q=>q.id===qid);db.collection("registrations").doc(id).update({qid:q?q.id:"",batch:q?q.batch:""}).catch(fail)}
-function uli(id,v){db.collection("registrations").doc(id).update({uli:v.trim()}).catch(fail)}
+function uli(id,v){db.collection("registrations").doc(id).update({uli:v.trim().toUpperCase()}).catch(fail)}
 function tg(id,k,v,on){const r=R.find(r=>r.id===id),a=r[k]||[];db.collection("registrations").doc(id).update({[k]:on?[...new Set([...a,v])]:a.filter(x=>x!==v)}).catch(fail)}
 function rowsOf(r,adm){const L=[["Registration key",r.id],["Date registered",new Date(r.date).toLocaleString()],["Qualification",r.qual],["Scholarship",r.sch||"—"]];
  if(adm)L.push(["Batch",r.batch||"— not assigned"]);
@@ -275,6 +275,6 @@ function more(id){openSet.has(id)?openSet.delete(id):openSet.add(id);renderA()}
 function detail(r){const d=r.dis||[],c=r.cau||[];return `<b>5. Disability</b><div class="opts">${DIS.map(v=>`<label><input type="checkbox" ${d.includes(v)?"checked":""} onchange="tg('${r.id}','dis','${v}',this.checked)">${v}</label>`).join("")}</div><b>6. Cause</b><div class="opts">${CAU.map(v=>`<label><input type="checkbox" ${c.includes(v)?"checked":""} onchange="tg('${r.id}','cau','${v}',this.checked)">${v}</label>`).join("")}</div>`}
 function renderA(){
  $("tQ").innerHTML="<tr><th>Qualification</th><th>Batch</th><th>Scholarship</th><th>Registered</th><th></th></tr>"+(Q.map(q=>`<tr><td>${esc(q.name)}</td><td>${esc(q.batch)}</td><td>${esc(q.sch)}</td><td>${R.filter(r=>r.qual===q.name&&r.sch===q.sch&&r.batch===q.batch).length}</td><td><button class="btn dg" onclick="delQ('${q.id}')">Delete</button></td></tr>`).join("")||"<tr><td colspan=5>None yet.</td></tr>");
- $("tR").innerHTML="<tr><th>Name</th><th>Qualification</th><th>Contact</th><th>ULI No.</th><th></th></tr>"+(R.map(r=>`<tr><td>${esc(r.ln)}, ${esc(r.fn)} ${esc(r.mn)}</td><td>${esc(r.qual)}<br><select onchange="assign('${r.id}',this.value)"><option value="">Assign batch…</option>${Q.filter(q=>q.name===r.qual&&q.sch===r.sch).map(q=>`<option value="${q.id}" ${q.id===r.qid?"selected":""}>${esc(q.batch)}</option>`).join("")}</select></td><td>${esc(r.cn)}<br><small>${esc(r.em)}</small></td><td><input type="text" value="${esc(r.uli)}" onchange="uli('${r.id}',this.value)" style="min-width:130px"></td><td><button class="btn sec" onclick="showD('${r.id}')">Details</button> <button class="btn sec" onclick="makePDF(R.find(x=>x.id==='${r.id}'))">PDF</button> <button class="btn sec" onclick="more('${r.id}')">5–6</button> <button class="btn dg" onclick="delR('${r.id}')">×</button><div>${openSet.has(r.id)?detail(r):""}</div></td></tr>`).join("")||"<tr><td colspan=5>No registrations yet.</td></tr>")}
+ $("tR").innerHTML="<tr><th>Name</th><th>Qualification</th><th>Contact</th><th>ULI No.</th><th></th></tr>"+(R.map(r=>`<tr><td>${esc(r.ln)}, ${esc(r.fn)} ${esc(r.mn)}</td><td>${esc(r.qual)}<br><select onchange="assign('${r.id}',this.value)"><option value="">Assign batch…</option>${Q.filter(q=>q.name===r.qual&&q.sch===r.sch).map(q=>`<option value="${q.id}" ${q.id===r.qid?"selected":""}>${esc(q.batch)}</option>`).join("")}</select></td><td>${esc(r.cn)}<br><small>${esc(r.em)}</small></td><td><input type="text" value="${esc(r.uli)}" placeholder="BJE-04-404-05017-001" maxlength="24" onchange="uli('${r.id}',this.value)" style="min-width:170px;text-transform:uppercase"></td><td><button class="btn sec" onclick="showD('${r.id}')">Details</button> <button class="btn sec" onclick="makePDF(R.find(x=>x.id==='${r.id}'))">PDF</button> <button class="btn sec" onclick="more('${r.id}')">5–6</button> <button class="btn dg" onclick="delR('${r.id}')">×</button><div>${openSet.has(r.id)?detail(r):""}</div></td></tr>`).join("")||"<tr><td colspan=5>No registrations yet.</td></tr>")}
 renderD();if(!CONFIGURED)$("qs").innerHTML='<div class="card">Setup needed: paste your Firebase config at the top of the script in index.html.</div>';$("nD").addEventListener("click",renderD);
 </script></body></html>
