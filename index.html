@@ -45,7 +45,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 
 <fieldset><legend>2. Learner / Manpower Profile</legend>
 <div class="row"><div><label>Last Name *</label><input type="text" id="ln"></div><div><label>Extension (Jr., Sr.)</label><input type="text" id="ex"></div><div><label>First Name *</label><input type="text" id="fn"></div><div><label>Middle Name</label><input type="text" id="mn"></div></div>
-<div class="row"><div><label>Number, Street *</label><input type="text" id="st"></div><div><label>Barangay *</label><input type="text" id="br"></div><div><label>District</label><input type="text" id="di"></div><div><label>City/Municipality *</label><input type="text" id="ct"></div><div><label>Province *</label><input type="text" id="pv"></div><div><label>Region *</label><select id="rg"></select></div></div>
+<div class="row"><div><label>Region *</label><select id="rg"></select></div><div><label>Province *</label><select id="pv" disabled></select></div><div><label>City/Municipality *</label><select id="ct" disabled></select></div><div><label>Barangay *</label><select id="br" disabled></select></div><div><label>District</label><input type="text" id="di"></div><div><label>Number, Street *</label><input type="text" id="st"></div></div>
 <div class="row"><div><label>Email Address *</label><input type="email" id="em"></div><div><label>Contact No. *</label><input type="tel" id="cn" inputmode="numeric" maxlength="11"></div><div><label>Nationality *</label><input type="text" id="na" value="Filipino"></div></div><div class="err" id="e_p"></div></fieldset>
 
 <fieldset><legend>3. Personal Information</legend>
@@ -54,7 +54,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 <label>3.3 Employment (before the training) *</label><div class="opts" id="es"></div>
 <div id="etw" class="hide"><label>Employment Type</label><div class="opts" id="et"></div></div>
 <div class="row"><div><label>3.4 Birthdate *</label><input type="date" id="bd"></div><div><label>Age</label><input type="text" id="ag" readonly></div></div>
-<div class="row"><div><label>3.5 Birthplace – City/Municipality *</label><input type="text" id="bc"></div><div><label>Province *</label><input type="text" id="bp"></div><div><label>Region *</label><select id="br2"></select></div></div>
+<div class="row"><div><label>3.5 Birthplace – Region *</label><select id="br2"></select></div><div><label>Province *</label><select id="bp" disabled></select></div><div><label>City/Municipality *</label><select id="bc" disabled></select></div></div>
 <label>3.6 Educational Attainment *</label><div class="opts col" id="ed"></div>
 <div class="row"><div><label>3.7 Parent/Guardian Name</label><input type="text" id="gn"></div><div><label>Complete Permanent Mailing Address</label><input type="text" id="ga"></div></div><div class="err" id="e_i"></div></fieldset>
 
@@ -99,13 +99,29 @@ radios("sx",SEX,"sx");radios("cv",CIV,"cv");radios("es",ES,"es");radios("et",ET,
 $("cl").innerHTML=CL.map(v=>`<label><input type="checkbox" name="cl" value="${esc(v)}">${esc(v)}</label>`).join("");
 $("pc").innerHTML=`<label><input type="radio" name="pc" value="Agree">Agree</label><label><input type="radio" name="pc" value="Disagree">Disagree</label>`;
 const opt=a=>'<option value="">Select…</option>'+a.map(v=>`<option>${v}</option>`).join("");
-$("rg").innerHTML=opt(REG);$("br2").innerHTML=opt(REG);$("qs2").innerHTML=SCH.map(v=>`<option>${v}</option>`).join("");
+$("qs2").innerHTML=SCH.map(v=>`<option>${v}</option>`).join("");
 const val=n=>(document.querySelector(`input[name=${n}]:checked`)||{}).value||"";
 function show(v){["D","F","K","L","A"].forEach(x=>$("v"+x).classList.toggle("hide",x!==v));$("nD").classList.toggle("on",v==="D"||v==="F");$("nK").classList.toggle("on",v==="K");$("nA").classList.toggle("on",v==="L"||v==="A");stopCam()}
 $("nD").onclick=()=>show("D");$("nK").onclick=()=>show("K");$("nA").onclick=()=>{show(admin?"A":"L");if(admin)renderA()};
 const names=()=>{const m={};Q.forEach(q=>m[q.name+"|"+q.sch]={name:q.name,sch:q.sch});return Object.values(m)};
 function renderD(){$("qs").innerHTML=names().length?names().map((n,i)=>`<div class="card"><h3>${esc(n.name)}</h3><span class="tag">${esc(n.sch)}</span><br><button class="btn" onclick="openF(${i})">Register</button></div>`).join(""):'<div class="card">No qualifications are open yet. Please check back later.</div>'}
-function openF(i){cur=names()[i];$("f").reset();photo=null;$("ph").textContent="No photo";document.querySelectorAll(".err").forEach(e=>e.textContent="");$("etw").classList.add("hide");$("na").value="Filipino";
+let GEO=null,GP=null;const BC={};
+function loadGeo(){return GP||(GP=fetch("ph-geo.json").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(g=>(GEO=g)).catch(e=>{GP=null;throw e}))}
+const optH=(a,ph)=>`<option value="">${ph}</option>`+a.map(v=>`<option>${esc(v)}</option>`).join("");
+function cascade(rid,pid,cid,bid){const R=$(rid),P=$(pid),C=$(cid),B=bid?$(bid):null;
+ const reg=()=>GEO&&GEO.find(x=>x.n===R.value),prv=()=>{const r=reg();return r&&r.p.find(x=>x.n===P.value)};
+ const setB=async()=>{if(!B)return;const t=B._t=(B._t||0)+1;B.innerHTML=optH([],"Barangay");B.disabled=true;
+  const ri=GEO?GEO.findIndex(x=>x.n===R.value):-1,r=reg(),pi=r?r.p.findIndex(x=>x.n===P.value):-1,ci=pi>=0?r.p[pi].c.indexOf(C.value):-1;if(ri<0||pi<0||ci<0)return;
+  B.innerHTML=optH([],"Loading…");
+  try{if(!BC[ri])BC[ri]=fetch("brgy/"+ri+".json").then(x=>{if(!x.ok)throw new Error("HTTP "+x.status);return x.json()});const d=await BC[ri];if(t!==B._t)return;B.innerHTML=optH(d[pi+"."+ci]||[],"Barangay");B.disabled=false}
+  catch(e){delete BC[ri];if(t===B._t)B.innerHTML=optH([],"Could not load barangays")}};
+ const setC=()=>{const p=prv();C.innerHTML=optH(p?p.c:[],"City/Municipality");C.disabled=!p;setB()};
+ const setP=()=>{const r=reg();P.innerHTML=optH(r?r.p.map(x=>x.n):[],"Province");P.disabled=!r;setC()};
+ R.onchange=setP;P.onchange=setC;C.onchange=setB;
+ return{init(){R.innerHTML=optH(GEO.map(x=>x.n),"Region");setP()}}}
+const A1=cascade("rg","pv","ct","br"),A2=cascade("br2","bp","bc",null);
+function initAddr(){["rg","br2"].forEach(i=>$(i).innerHTML='<option value="">Loading…</option>');loadGeo().then(()=>{A1.init();A2.init()}).catch(e=>{$("e_p").textContent="Could not load the address list ("+e.message+"). Check your connection and reopen this form."})}
+function openF(i){cur=names()[i];$("f").reset();initAddr();photo=null;$("ph").textContent="No photo";document.querySelectorAll(".err").forEach(e=>e.textContent="");$("etw").classList.add("hide");$("na").value="Filipino";
 $("qq").innerHTML=`<option>${esc(cur.name)}</option>`;$("sc").value=cur.sch;$("fT").textContent=cur.name+" · "+cur.sch;show("F");scrollTo(0,0)}
 $("es").onchange=()=>{const v=val("es");$("etw").classList.toggle("hide",!(v==="Wage-Employed"||v==="Underemployed"))};
 $("bd").onchange=()=>{const b=new Date($("bd").value);if(isNaN(b)){$("ag").value="";return}const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;$("ag").value=a>=0?a:""};
