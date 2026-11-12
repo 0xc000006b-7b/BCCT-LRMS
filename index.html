@@ -45,7 +45,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 
 <fieldset><legend>2. Learner / Manpower Profile</legend>
 <div class="row"><div><label>Last Name *</label><input type="text" id="ln"></div><div><label>Extension (Jr., Sr.)</label><input type="text" id="ex"></div><div><label>First Name *</label><input type="text" id="fn"></div><div><label>Middle Name</label><input type="text" id="mn"></div></div>
-<div class="row"><div><label>Region *</label><select id="rg"></select></div><div><label>Province *</label><select id="pv" disabled></select></div><div><label>City/Municipality *</label><select id="ct" disabled></select></div><div><label>Barangay *</label><select id="br" disabled></select></div><div><label>District</label><input type="text" id="di"></div><div><label>Number, Street *</label><input type="text" id="st"></div></div>
+<div class="row"><div><label>Region *</label><select id="rg"></select></div><div><label>Province *</label><select id="pv" disabled></select></div><div><label>City/Municipality *</label><select id="ct" disabled></select></div><div><label>Barangay *</label><input type="text" id="br"></div><div><label>District</label><select id="di"><option value="">Select…</option><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option><option value="VII">VII</option><option value="VIII">VIII</option><option value="Lone District">Lone District</option><option value="1st(North) District">1st(North) District</option><option value="1st(South) District">1st(South) District</option></select></div><div><label>Number, Street *</label><input type="text" id="st"></div></div>
 <div class="row"><div><label>Email Address *</label><input type="email" id="em"></div><div><label>Contact No. *</label><input type="tel" id="cn" inputmode="numeric" maxlength="11"></div><div><label>Nationality *</label><input type="text" id="na" value="Filipino"></div></div><div class="err" id="e_p"></div></fieldset>
 
 <fieldset><legend>3. Personal Information</legend>
@@ -119,7 +119,7 @@ function cascade(rid,pid,cid,bid){const R=$(rid),P=$(pid),C=$(cid),B=bid?$(bid):
  const setP=()=>{const r=reg();P.innerHTML=optH(r?r.p.map(x=>x.n):[],"Province");P.disabled=!r;setC()};
  R.onchange=setP;P.onchange=setC;C.onchange=setB;
  return{init(){R.innerHTML=optH(GEO.map(x=>x.n),"Region");setP()}}}
-const A1=cascade("rg","pv","ct","br"),A2=cascade("br2","bp","bc",null);
+const A1=cascade("rg","pv","ct",null),A2=cascade("br2","bp","bc",null);
 function initAddr(){["rg","br2"].forEach(i=>$(i).innerHTML='<option value="">Loading…</option>');loadGeo().then(()=>{A1.init();A2.init()}).catch(e=>{$("e_p").textContent="Could not load the address list ("+e.message+"). Check your connection and reopen this form."})}
 function openF(i){cur=names()[i];$("f").reset();initAddr();photo=null;$("ph").textContent="No photo";document.querySelectorAll(".err").forEach(e=>e.textContent="");$("etw").classList.add("hide");$("na").value="Filipino";
 $("qq").innerHTML=`<option>${esc(cur.name)}</option>`;$("sc").value=cur.sch;$("fT").textContent=cur.name+" · "+cur.sch;show("F");scrollTo(0,0)}
