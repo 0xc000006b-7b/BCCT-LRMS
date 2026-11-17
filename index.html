@@ -45,8 +45,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;p
 
 <fieldset><legend>2. Learner / Manpower Profile</legend>
 <div class="row"><div><label>Last Name *</label><input type="text" id="ln"></div><div><label>Extension (Jr., Sr.)</label><input type="text" id="ex"></div><div><label>First Name *</label><input type="text" id="fn"></div><div><label>Middle Name</label><input type="text" id="mn"></div></div>
-<div class="row"><div><label>Region *</label><select id="rg"></select></div><div><label>Province *</label><select id="pv" disabled></select></div><div><label>City/Municipality *</label><select id="ct" disabled></select></div><div><label>Barangay *</label><input type="text" id="br"></div><div><label>District</label><select id="di"><option value="">Select…</option><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option><option value="VII">VII</option><option value="VIII">VIII</option><option value="Lone District">Lone District</option><option value="1st(North) District">1st(North) District</option><option value="1st(South) District">1st(South) District</option></select></div><div><label>Number, Street *</label><input type="text" id="st"></div></div>
-<div class="row"><div><label>Email Address *</label><input type="email" id="em"></div><div><label>Contact No. *</label><input type="tel" id="cn" inputmode="numeric" maxlength="11"></div><div><label>Nationality *</label><input type="text" id="na" value="Filipino"></div></div><div class="err" id="e_p"></div></fieldset>
+<div class="row"><div><label>Region *</label><select id="rg"></select></div><div><label>Province *</label><select id="pv" disabled></select></div><div><label>City/Municipality *</label><select id="ct" disabled></select></div><div><label>Barangay *</label><input type="text" id="br"></div><div><label>District *</label><select id="di"><option value="">Select…</option><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option><option value="VII">VII</option><option value="VIII">VIII</option><option value="Lone District">Lone District</option><option value="1st(North) District">1st(North) District</option><option value="1st(South) District">1st(South) District</option></select></div><div><label>Number, Street *</label><input type="text" id="st"></div></div>
+<div class="row"><div><label>Email Address *</label><input type="email" id="em"></div><div><label>Contact No. * <small>(11 digits, e.g. 09171234567)</small></label><input type="tel" id="cn" inputmode="numeric" autocomplete="tel" placeholder="09171234567"></div><div><label>Nationality *</label><input type="text" id="na" value="Filipino"></div></div><div class="err" id="e_p"></div></fieldset>
 
 <fieldset><legend>3. Personal Information</legend>
 <label>3.1 Sex *</label><div class="opts" id="sx"></div>
@@ -129,7 +129,7 @@ $("qq").innerHTML=`<option>${esc(cur.name)}</option>`;$("sc").value=cur.sch;$("f
 $("es").onchange=()=>{const v=val("es");$("etw").classList.toggle("hide",!(v==="Wage-Employed"||v==="Underemployed"))};
 $("bd").onchange=()=>{const b=new Date($("bd").value);if(isNaN(b)){$("ag").value="";return}const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;$("ag").value=a>=0?a:""};
 ["ln","ex","fn","mn"].forEach(i=>$(i).oninput=()=>{$(i).value=$(i).value.toUpperCase()});
-$("cn").oninput=()=>{$("cn").value=$("cn").value.replace(/\D/g,"")};
+$("cn").oninput=()=>{$("cn").value=$("cn").value.replace(/\D/g,"").slice(0,11)};
 function fit(src,cb){const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=300;c.height=400;const x=c.getContext("2d"),r=Math.max(300/i.width,400/i.height),w=i.width*r,h=i.height*r;x.drawImage(i,(300-w)/2,(400-h)/2,w,h);cb(c.toDataURL("image/jpeg",.85))};i.src=src}
 function setPh(d){photo=d;$("ph").innerHTML=`<img src="${d}" alt="">`;$("e_photo").textContent=""}
 $("fu").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>fit(r.result,setPh);r.readAsDataURL(f)};
@@ -139,9 +139,9 @@ $("bSnap").onclick=()=>{const v=$("ph").querySelector("video");if(!v)return;cons
 $("sub").onclick=async()=>{
  const E={};const g=i=>$(i).value.trim();
  if(!photo)E.photo="ID picture is required.";
- if(!g("ln")||!g("fn")||!g("st")||!g("br")||!g("ct")||!g("pv")||!$("rg").value||!g("na"))E.p="Please complete name and address fields marked *.";
+ if(!g("ln")||!g("fn")||!g("st")||!g("br")||!g("ct")||!g("pv")||!g("di")||!$("rg").value||!g("na"))E.p="Please complete name and address fields marked *.";
  else if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g("em")))E.p="Enter a valid email address.";
- else if(!/^\d{7,11}$/.test(g("cn")))E.p="Contact number must be digits only (7–11).";
+ else if(!/^09\d{9}$/.test(g("cn")))E.p="Contact number must be exactly 11 digits and start with 09 (e.g. 09171234567).";
  if(!val("sx")||!val("cv")||!val("es")||!$("bd").value||!g("bc")||!g("bp")||!$("br2").value||!val("ed"))E.i="Please complete section 3 (sex, civil status, employment, birthdate, birthplace, education).";
  if(!document.querySelector("input[name=cl]:checked")&&!g("clo"))E.c="Select at least one classification.";
  if(val("pc")!=="Agree")E.v="You must agree to the privacy consent to register.";
@@ -201,7 +201,7 @@ function makePDF(r){
  T("2.2.",13.6,112.5,{z:7});["Complete","Permanent","Mailing"].forEach((t,i)=>T(t,20.4,108+i*4,{s:"bold",z:9.5}));T("Address:",13.8,121.6,{s:"bold",z:9.5});
  box(39.8,102.3,65.4,17.7,r.st,"Number, Street",{top:1});box(107.5,102.3,60.7,17.7,r.br,"Barangay",{top:1});box(169.8,102.3,32.5,17.7,r.di,"District",{top:1});
  box(39.8,124.1,65.4,7.3,r.ct,"City/Municipality");box(107.5,124.1,60.7,7.3,r.pv,"Province");box(169.8,124.1,32.5,7.3,r.rg,"Region");
- box(39.8,135,65.4,6.4,r.em);box(107.5,135,60.7,6.4,r.cn);box(169.8,135,32.5,6.4,r.na);
+ box(39.8,135,65.4,6.4,r.em);box(107.5,135,60.7,6.4,String(r.cn||"").replace(/^(\d{4})(\d{3})(\d{4})$/,"$1-$2-$3"));box(169.8,135,32.5,6.4,r.na);
  T("Email Address/Facebook Account:",40.4,144,{s:"bold",z:7.5});T("Contact No:",137.8,144,{s:"bold",z:7.5,a:"center"});T("Nationality",186,144,{s:"bold",z:7.5,a:"center"});
  bar(145.7,7.7,"3. Personal Information");
  rect(X0,153.4,WD,39.3);ln(42.7,153.4,42.7,192.7);ln(93.2,153.4,93.2,192.7);ln(X0,160,X1,160);
